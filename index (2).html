@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NewYear MemCards 2.0</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    background: #0b0b2e;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    flex-direction: column;
+  }
+
+  .card {
+    width: 320px;
+    height: 420px;
+    background: #1e1e50;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.5s;
+  }
+
+  .card img {
+    width: 90%;
+    max-height: 200px;
+    border-radius: 10px;
+  }
+
+  .text {
+    font-size: 16px;
+    margin-top: 10px;
+  }
+
+  button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #ff6f61;
+    color: white;
+    font-weight: bold;
+  }
+
+  .snowflake {
+    position: absolute;
+    top: -10px;
+    font-size: 1em;
+    color: white;
+    user-select: none;
+    z-index: 100;
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(0) translateX(0); }
+    100% { transform: translateY(110vh) translateX(20px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <img id="card-img" src="https://i.kym-cdn.com/photos/images/original/002/977/682/cb6.png" alt="Мем">
+  <div class="text" id="card-text">В новом году ты поймёшь причину своих проблем. Но решать их пока не будешь.</div>
+</div>
+
+<div>
+  <button onclick="newCard()">🎴 Тянуть мем</button>
+  <button onclick="shareCard()">📤 Поделиться</button>
+</div>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  const cards = [
+    {img:"https://i.kym-cdn.com/photos/images/original/002/977/682/cb6.png", text:"В новом году ты поймёшь причину своих проблем. Но решать их пока не будешь."},
+    {img:"https://i.imgur.com/3g8h5wM.png", text:"Ты наконец разрешишь себе отдыхать. И будешь переживать из-за этого."},
+    {img:"https://i.imgur.com/1yX2h3T.png", text:"Ты перестанешь всё контролировать. Потому что устал."},
+    {img:"https://i.imgur.com/9f1KxP0.png", text:"В этом году ты научишься ставить границы. Но сначала — извиняться за них."},
+    {img:"https://i.imgur.com/f8iOQ0A.png", text:"Твоя тревожность станет более осознанной. Но не менее активной."},
+    {img:"https://i.imgur.com/Xd0h7fT.png", text:"Ты пойдёшь в терапию. Или будешь много о ней думать."},
+    {img:"https://i.imgur.com/y2l3j9B.png", text:"Ты научишься отпускать прошлое. Но сначала ещё раз его прокрутишь."},
+    {img:"https://i.imgur.com/Q6x2r2E.png", text:"В 2025 ты примешь себя. Но с оговорками."},
+    {img:"https://i.imgur.com/7m1Jz4U.png", text:"Твои мысли станут страннее. Но уверенность — выше."},
+    {img:"https://i.imgur.com/G2sX5eV.png", text:"В этом году ты будешь чаще выбирать себя. И переживать из-за этого."},
+    {img:"https://i.imgur.com/fk2Pq7V.png", text:"В новом году твой девиз: «6–7, и нормально»."},
+    {img:"https://i.imgur.com/UxK0i6T.png", text:"Ты снова станешь «делулу». И это принесёт результат."},
+    {img:"https://i.imgur.com/wCk6h8R.png", text:"Ты перестанешь объяснять свои решения. Мем понятнее."},
+    {img:"https://i.imgur.com/NyF0h6P.png", text:"Твоя мотивация придет волнами. Очень маленькими волнами."},
+    {img:"https://i.imgur.com/9A3kQ2T.png", text:"Ты наконец поймёшь, чего хочешь. Но не сегодня."},
+    {img:"https://i.imgur.com/jW2rV7P.png", text:"В этом году ты перестанешь гуглить «что со мной не так». Иногда."},
+    {img:"https://i.imgur.com/qT5lR4D.png", text:"Ты станешь эмоционально стабильнее. В хорошую погоду."},
+    {img:"https://i.imgur.com/2xK4o9H.png", text:"Ты научишься говорить «мне тяжело». А потом шутить."},
+    {img:"https://i.imgur.com/pD9kF3V.png", text:"Ты примешь, что не обязан быть продуктивным. Чувство вины останется бонусом."},
+    {img:"https://i.imgur.com/4kL1f5T.png", text:"Ты поймёшь, что с тобой всё в порядке. Просто год был странный."},
+    {img:"https://i.imgur.com/5gH2j6U.png", text:"Ты внезапно поймёшь, что стал взрослым. Но всё равно купишь ерунду."},
+    {img:"https://i.imgur.com/6iJ3k7V.png", text:"В этом году ты скажешь: «Ну, в целом нормально». И это лучший итог."},
+    {img:"https://i.imgur.com/7jK4l8W.png", text:"Твои новогодние обещания проживут дольше обычного. Примерно до 12 января."},
+    {img:"https://i.imgur.com/8mL5n9X.png", text:"Ты будешь чаще говорить «ладно». И реже «я всё успею»."},
+    {img:"https://i.imgur.com/9nM6o0Y.png", text:"Тебя ждёт неожиданная удача. Но ты подумаешь, что это совпадение."},
+    {img:"https://i.imgur.com/0oN7p1Z.png", text:"Ты снова начнёшь жизнь с понедельника. Какого — не уточняется."},
+    {img:"https://i.imgur.com/1pO8q2A.png", text:"В 2025 ты станешь чуть счастливее. Не идеально, зато честно."},
+    {img:"https://i.imgur.com/2qP9r3B.png", text:"Тебя ждёт много маленьких радостей. И одна большая — но о ней забудешь рассказать."},
+    {img:"https://i.imgur.com/3rQ0s4C.png", text:"Ты будешь чаще смеяться. Иногда — без причины."},
+    {img:"https://i.imgur.com/4sR1t5D.png", text:"Ты поймёшь, что прошлый год был репетицией. И снова не генеральной."},
+    {img:"https://i.imgur.com/5tS2u6E.png", text:"В 2025 твоя энергия станет страннее. И тебе это понравится."},
+    {img:"https://i.imgur.com/6uT3v7F.png", text:"В новом году ты станешь другим человеком. Но не сразу. И не сегодня."},
+    {img:"https://i.imgur.com/7vU4w8G.png", text:"Ты научишься заботиться о себе. Иногда слишком буквально — лёжа."},
+    {img:"https://i.imgur.com/8wV5x9H.png", text:"Ты наконец поймёшь, что устал не потому что слабый, а потому что давно."},
+    {img:"https://i.imgur.com/9xW6y0I.png", text:"В этом году ты будешь меньше требовать от себя. И больше лежать."},
+    {img:"https://i.imgur.com/0yX7z1J.png", text:"Ты перестанешь объяснять свои решения. Даже мемы станут понятнее."},
+    {img:"https://i.imgur.com/1zY8a2K.png", text:"Ты научишься отпускать прошлое. Но сначала ещё раз его прокрутишь."},
+    {img:"https://i.imgur.com/2aZ9b3L.png", text:"Твои мысли станут страннее. Но уверенность — выше."},
+    {img:"https://i.imgur.com/3bA0c4M.png", text:"Ты снова начнёшь жизнь с понедельника. Какого — не уточняется."},
+    {img:"https://i.imgur.com/4cB1d5N.png", text:"В этом году ты будешь чаще выбирать себя. И переживать из-за этого."},
+    {img:"https://i.imgur.com/5dC2e6O.png", text:"Ты поймёшь, что с тобой всё в порядке. Просто год был странный. И ты тоже."},
+    {img:"https://i.imgur.com/6eD3f7P.png", text:"В новом году твоя тревожность будет слегка модной. И это даже круто."},
+    {img:"https://i.imgur.com/7fE4g8Q.png", text:"Ты научишься говорить «мне тяжело». А потом шутить над этим."}
+  ];
+
+  function newCard() {
+    const card = cards[Math.floor(Math.random()*cards.length)];
+    const cardImg = document.getElementById('card-img');
+    const cardText = document.getElementById('card-text');
+    cardImg.src = card.img;
+    cardText.textContent = card.text;
+
+    const cardDiv = document.getElementById('card');
+    cardDiv.style.transform = "rotateY(180deg)";
+    setTimeout(()=>{cardDiv.style.transform = "rotateY(0deg)";}, 500);
+  }
+
+  function shareCard() {
+    const cardText = document.getElementById('card-text').textContent;
+    Telegram.WebApp.sendData(cardText);
+    alert("Предсказание отправлено в чат!");
+  }
+
+  function createSnowflake() {
+    const snowflake = document.createElement("div");
+    snowflake.className = "snowflake";
+    snowflake.textContent = "❄";
+    snowflake.style.left = Math.random() * window.innerWidth + "px";
+    snowflake.style.fontSize = (Math.random()*24 + 12) + "px";
+    snowflake.style.animationDuration = (Math.random()*5 + 5) + "s";
+    document.body.appendChild(snowflake);
+    setTimeout(() => snowflake.remove(), 10000);
+  }
+
+  setInterval(createSnowflake, 200);
+</script>
+
+</body>
+</html>
